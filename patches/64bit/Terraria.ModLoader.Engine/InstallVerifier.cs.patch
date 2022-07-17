@@ -33,3 +33,12 @@
  				steamAPIPath = "lib/libsteam_api.so";
  				steamAPIHash = ToByteArray("7B74FD4C207D22DB91B4B649A44467F6");
  				gogHash = ToByteArray("56794421993db33b7607d1be233b586d");
+@@ -84,7 +_,7 @@
+ 			}
+ #endif
+ 			// Whether the steam_api file exists, indicating we'd have to check steam installation
+-			if (File.Exists(steamAPIPath))
++			/*if (File.Exists(steamAPIPath))*/
+ 				return CheckSteam();
+ 
+ 			return CheckGoG();

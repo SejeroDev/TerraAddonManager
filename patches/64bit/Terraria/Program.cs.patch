@@ -46,7 +46,7 @@
  			return type.GetMethods(BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
  #else
  			return type.GetMethods();
-@@ -204,89 +_,147 @@
+@@ -204,89 +_,166 @@
  		// some versions of the .NET runtime will run the Main static initilizer as soon as LaunchGame is invoked
  		// causing Main.SavePath to be initialized before LaunchParameters is parsed.
  		// moving arg parsing to a separate function avoids this
@@ -188,32 +188,54 @@
  #else
  					main.DedServ();
  #endif
-+					}
- 				}
+-				}
 -			}
 -			catch (Exception e) {
-+				catch (Exception e) {
 -				Logging.Terraria.Fatal("Main engine crash", e);
-+					Logging.Terraria.Fatal("Main engine crash", e);
 -				DisplayException(e);
+-			}
+-		}
+-
+-		private static void DisplayException(Exception e) {
+-			try {
+-				using (StreamWriter streamWriter = new StreamWriter("client-crashlog.txt", append: true)) {
+-					streamWriter.WriteLine(DateTime.Now);
+-					streamWriter.WriteLine(e);
+-					streamWriter.WriteLine("");
+-				}
++					}
++				}
++				catch (Exception e) {
++					Logging.Terraria.Fatal("Main engine crash", e);
 +					DisplayException(e);
 +				}
- 			}
--		}
- 
--		private static void DisplayException(Exception e) {
++			}
++
++		
++		private const int HighDpiThreshold = 96;
++		/*private static void AttemptSupportHighDPI(bool isServer) {
++			if (isServer)
++				return;
++
++			if (Platform.IsWindows) {
++				[DllImport("user32.dll")]
++				static extern bool SetProcessDPIAware();
++
++				SetProcessDPIAware();
++			}
++
++			SDL2.SDL.SDL_VideoInit(null);
++			SDL2.SDL.SDL_GetDisplayDPI(0, out var ddpi, out float hdpi, out float vdpi);
++			if (ddpi >= HighDpiThreshold || hdpi >= HighDpiThreshold || vdpi >= HighDpiThreshold)
++				Environment.SetEnvironmentVariable("FNA_GRAPHICS_ENABLE_HIGHDPI", "1");
++		}*/
++		
 +			private static void DisplayException(Exception e) {
--			try {
 +				try {
--				using (StreamWriter streamWriter = new StreamWriter("client-crashlog.txt", append: true)) {
 +					using (StreamWriter streamWriter = new StreamWriter("client-crashlog.txt", append: true)) {
--					streamWriter.WriteLine(DateTime.Now);
 +						streamWriter.WriteLine(DateTime.Now);
--					streamWriter.WriteLine(e);
 +						streamWriter.WriteLine(e);
--					streamWriter.WriteLine("");
 +						streamWriter.WriteLine("");
--				}
 +					}
  
  #if CLIENT

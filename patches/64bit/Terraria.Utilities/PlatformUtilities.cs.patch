@@ -66,7 +66,7 @@
  			Marshal.Copy(data, 0, ptr->pixels, width * height * 4);
  			SDL.SDL_UnlockSurface(intPtr);
  			data = null;
-@@ -74,12 +_,51 @@
+@@ -74,12 +_,55 @@
  			}
  
  			byte[] array = new byte[width * height * 4 + 41 + 57 + 256];
@@ -74,6 +74,10 @@
 -			IntPtr intPtr3 = SDL.SDL_RWFromMem(array, array.Length);
 +			IntPtr intPtr3 = SDL.SDL_RWFromMem(handle.AddrOfPinnedObject(), array.Length);
  			SDL_image.IMG_SavePNG_RW(intPtr, intPtr3, 1);
++			
++			/*byte[] array = new byte[width * height * 4 + 41 + 57 + 256];
++			IntPtr intPtr3 = SDL.SDL_RWFromMem(array, array.Length);
++			SDL_image.IMG_SavePNG_RW(intPtr, intPtr3, 1);*/
  			SDL.SDL_FreeSurface(intPtr);
 -			int count = ((int)array[33] << 24 | (int)array[34] << 16 | (int)array[35] << 8 | (int)array[36]) + 41 + 57;
 +			int count = (array[33] << 24 | array[34] << 16 | array[35] << 8 | array[36]) + 41 + 57;

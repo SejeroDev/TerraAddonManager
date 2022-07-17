@@ -1,6 +1,6 @@
 --- src/tModLoader/Terraria.Graphics.Capture/CaptureCamera.cs
 +++ src/64bit/Terraria.Graphics.Capture/CaptureCamera.cs
-@@ -5,7 +_,7 @@
+@@ -5,14 +_,12 @@
  using System.Drawing;
  using System.Drawing.Imaging;
  using System.IO;
@@ -9,6 +9,13 @@
  using System.Runtime.InteropServices;
  #endif
  using System.Threading;
+ using Terraria.Localization;
+-#if !WINDOWS
+ using Terraria.Utilities;
+-#endif
+ 
+ namespace Terraria.Graphics.Capture
+ {
 @@ -163,7 +_,7 @@
  					byte* ptr4 = ptr3 + (destinationBufferWidth * area.Y + area.X << 2);
  					for (int i = 0; i < area.Height; i++) {

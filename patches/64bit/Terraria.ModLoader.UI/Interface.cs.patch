@@ -9,18 +9,37 @@
  
  namespace Terraria.ModLoader.UI
  {
-@@ -39,6 +_,7 @@
+@@ -31,6 +_,7 @@
+ 		internal const int enterPassphraseMenuID = 10015;
+ 		internal const int modPacksMenuID = 10016;
+ 		internal const int tModLoaderSettingsID = 10017;
++		internal const int tModLoader64SettingsID = 10117;
+ 		internal const int enterSteamIDMenuID = 10018;
+ 		internal const int extractModID = 10019;
+ 		internal const int downloadProgressID = 10020;
+@@ -39,6 +_,9 @@
  		internal const int modConfigID = 10024;
  		internal const int createModID = 10025;
  		internal const int exitID = 10026;
-+		internal const int supportID = 20000;
++		internal const int supportLinksID = 20000;
++		internal const int tModLoader32supportLinksId = 20010;
++		internal const int tModLoader64supportLinksId = 20020;
  		internal static UIMods modsMenu = new UIMods();
  		internal static UILoadMods loadMods = new UILoadMods();
  		private static UIModSources modSources = new UIModSources();
-@@ -79,11 +_,21 @@
- 				buttonIndex++;
- 				numButtons++;
+@@ -70,20 +_,21 @@
  			}
+ 			buttonIndex++;
+ 			numButtons++;
+-			if (ModCompile.DeveloperMode) {
+-				buttonNames[buttonIndex] = Language.GetTextValue("tModLoader.MenuModSources");
+-				if (selectedMenu == buttonIndex) {
+-					Main.PlaySound(10, -1, -1, 1);
+-					Main.menuMode = ModCompile.DeveloperModeReady(out var _) ? modSourcesID : developerModeHelpID;
+-				}
+-				buttonIndex++;
+-				numButtons++;
+-			}
 +
  			buttonNames[buttonIndex] = Language.GetTextValue("tModLoader.MenuModBrowser");
  			if (selectedMenu == buttonIndex) {
@@ -31,25 +50,57 @@
 +			buttonIndex++;
 +			numButtons++;
 +
-+			buttonNames[buttonIndex] = Language.GetTextValue("tModLoader.Support");
++			buttonNames[buttonIndex] = "Support";
 +			if (selectedMenu == buttonIndex) {
 +				Main.PlaySound(10, -1, -1, 1);
-+				Main.menuMode = supportID;
++				Main.menuMode = supportLinksID;
 +			}
  			buttonIndex++;
  			numButtons++;
  			offY = 220;
-@@ -283,6 +_,47 @@
+@@ -275,6 +_,30 @@
+ 					Main.PlaySound(11, -1, -1, 1);
+ 				}
+ 			}
++			else if (Main.menuMode == tModLoader64SettingsID) {
++				offY = 210;
++				spacing = 42;
++				numButtons = 2;
++				buttonVerticalSpacing[numButtons - 1] = 18;
++				for (int i = 0; i < numButtons; i++) {
++					buttonScales[i] = 0.75f;
++				}
++				
++				int buttonIndex = 0;
++				buttonNames[buttonIndex] = (Core64.xlWorldsDisabled ? "Enable XL Worlds (Might cause performance problems on low end hardware)" : "Disable XL Worlds (Only disable if you have performance issues or don't plan to play on XL Worlds)");
++				if (selectedMenu == buttonIndex) {
++					Main.PlaySound(SoundID.MenuTick);
++					Core64.ToggleXLWorld();
++				}
++
++				buttonIndex++;
++				buttonNames[buttonIndex] = Lang.menu[5].Value;
++				if (selectedMenu == buttonIndex || backButtonDown) {
++					backButtonDown = false;
++					Main.menuMode = 11;
++					Main.PlaySound(11, -1, -1, 1);
++				}
++			}
+ 			else if (Main.menuMode == modConfigID)
+ 			{
+ 				Main.MenuUI.SetState(modConfig);
+@@ -283,6 +_,124 @@
  			else if (Main.menuMode == exitID) {
  				Environment.Exit(0);
  			}
-+			else if (Main.menuMode == supportID) {
++			else if (Main.menuMode == supportLinksID) {
 +				offY = 210;
 +				spacing = 60;
-+				numButtons = 5;
++				numButtons = 3;
 +				buttonVerticalSpacing[numButtons - 1] = 18;
 +				int buttonIndex = 0;
-+				buttonNames[buttonIndex] = Language.GetTextValue("tModLoader.64bitDiscord");
++				
++				/*buttonNames[buttonIndex] = Language.GetTextValue("tModLoader.64bitDiscord");
 +				if (selectedMenu == buttonIndex) {
 +					Main.PlaySound(SoundID.MenuOpen);
 +					Process.Start("https://discord.gg/DY8cx5T");
@@ -74,13 +125,89 @@
 +				if (selectedMenu == buttonIndex) {
 +					Main.PlaySound(SoundID.MenuOpen);
 +					Process.Start("https://www.patreon.com/tModLoader");
-+				}
++				}*/
 +
++				buttonNames[buttonIndex] = "tModLoader 32 bit support links";
++				if (selectedMenu == buttonIndex) {
++					Main.PlaySound(SoundID.MenuOpen);
++					Main.menuMode = tModLoader32supportLinksId;
++				}
 +				buttonIndex++;
++				
++				buttonNames[buttonIndex] = "tModLoader 64 bit support links";
++				if (selectedMenu == buttonIndex) {
++					Main.PlaySound(SoundID.MenuOpen);
++					Main.menuMode = tModLoader64supportLinksId;
++				}
++				buttonIndex++;
++				
 +				buttonNames[buttonIndex] = Lang.menu[5].Value;
 +				if (selectedMenu == buttonIndex || backButtonDown) {
 +					backButtonDown = false;
 +					Main.menuMode = 0;
++					Main.PlaySound(11, -1, -1, 1);
++				}
++			}
++			else if (Main.menuMode == tModLoader32supportLinksId) {
++				offY = 220;
++				spacing = 60;
++				numButtons = 3;
++				buttonVerticalSpacing[numButtons - 1] = 18;
++				int buttonIndex = 0;
++				
++				buttonNames[buttonIndex] = Language.GetTextValue("tModLoader.tModDiscord");
++				if (selectedMenu == buttonIndex) {
++					Main.PlaySound(SoundID.Chat);
++					Process.Start("https://discord.gg/RMZCqq6");
++				}
++				buttonIndex++;
++				
++				buttonNames[buttonIndex] = Language.GetTextValue("tModLoader.PatreontMod");
++				if (selectedMenu == buttonIndex) {
++					Main.PlaySound(SoundID.Coins);
++					Process.Start("https://www.patreon.com/tModLoader");
++				}
++				buttonIndex++;
++
++				buttonNames[buttonIndex] = Lang.menu[5].Value;
++				if (selectedMenu == buttonIndex || backButtonDown) {
++					backButtonDown = false;
++					Main.menuMode = supportLinksID;
++					Main.PlaySound(11, -1, -1, 1);
++				}
++			}
++			else if (Main.menuMode == tModLoader64supportLinksId) {
++				offY = 220;
++				spacing = 60;
++				numButtons = 4;
++				buttonVerticalSpacing[numButtons - 1] = 18;
++				int buttonIndex = 0;
++				
++				buttonNames[buttonIndex] = Language.GetTextValue("tModLoader.64bitDiscord");
++				if (selectedMenu == buttonIndex) {
++					Main.PlaySound(SoundID.Chat);
++					Process.Start("https://discord.gg/DY8cx5T");
++				}
++				buttonIndex++;
++				
++				buttonNames[buttonIndex] = "Support TheStachelfisch (Developer and maintainer of tModLoader for the past 3+ years)";
++				if (selectedMenu == buttonIndex) {
++					Main.PlaySound(SoundID.Coins);
++					Process.Start("https://thestachelfisch.me/support");
++				}
++				buttonIndex++;
++				
++				buttonNames[buttonIndex] = "Support Dradon (Initial creator of tModLoader 64 bit)";
++				if (selectedMenu == buttonIndex) {
++					Main.PlaySound(SoundID.Coins);
++					Process.Start("https://www.patreon.com/dradonhunter11");
++				}
++				buttonIndex++;
++
++				buttonNames[buttonIndex] = Lang.menu[5].Value;
++				if (selectedMenu == buttonIndex || backButtonDown) {
++					backButtonDown = false;
++					Main.menuMode = supportLinksID;
 +					Main.PlaySound(11, -1, -1, 1);
 +				}
 +			}

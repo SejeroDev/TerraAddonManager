@@ -1,0 +1,56 @@
+--- src/tModLoader/Terraria/NetMessage.cs
++++ src/64bit/Terraria/NetMessage.cs
+@@ -14,6 +_,8 @@
+ using Terraria.Localization;
+ using Terraria.ModLoader;
+ using Terraria.ModLoader.IO;
++using Terraria.ModLoader.UI;
++using Terraria.ModLoader.x64bit;
+ using Terraria.Net;
+ using Terraria.Social;
+ 
+@@ -1831,18 +_,33 @@
+ 				int num = 0;
+ 				int num2 = buffer[bufferIndex].totalData;
+ 				try {
++					try {
+-					while (num2 >= 2) {
++						while (num2 >= 2) {
+-						int num3 = BitConverter.ToUInt16(buffer[bufferIndex].readBuffer, num);
++							int num3 = BitConverter.ToUInt16(buffer[bufferIndex].readBuffer, num);
+-						if (num2 >= num3) {
++							if (num2 >= num3) {
+-							long position = buffer[bufferIndex].reader.BaseStream.Position;
++								long position = buffer[bufferIndex].reader.BaseStream.Position;
+-							buffer[bufferIndex].GetData(num + 2, num3 - 2, out int _);
++								buffer[bufferIndex].GetData(num + 2, num3 - 2, out int _);
+-							buffer[bufferIndex].reader.BaseStream.Position = position + num3;
++								buffer[bufferIndex].reader.BaseStream.Position = position + num3;
+-							num2 -= num3;
++								num2 -= num3;
+-							num += num3;
++								num += num3;
+-							continue;
++								continue;
+-						}
++							}
+ 
+-						break;
++							break;
++						}
++					}
++					catch (IndexOutOfRangeException e) {
++#if CLIENT
++						if (Core64.xlWorldsDisabled) {
++							Interface.infoMessage.Show("You need to enable XL Worlds in order to play them.\nEnable them under Settings > tModLoader 64 bit Settings > Enable XL worlds", 0);
++							Netplay.disconnect = true;
++						}
++						else {
++#endif
++							throw;
++#if CLIENT
++						}
++#endif
+ 					}
+ 				}
+ 				catch {

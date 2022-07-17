@@ -1,5 +1,14 @@
 --- src/tModLoader/Terraria/WorldGen.cs
 +++ src/64bit/Terraria/WorldGen.cs
+@@ -20,6 +_,8 @@
+ using Terraria.World.Generation;
+ using Terraria.ModLoader;
+ using Terraria.ModLoader.IO;
++using Terraria.ModLoader.UI;
++using Terraria.ModLoader.x64bit;
+ #if CLIENT
+ using Terraria.Map;
+ #endif
 @@ -592,12 +_,12 @@
  		private static int[] dRoomT = new int[maxDRooms];
  		private static int[] dRoomB = new int[maxDRooms];
@@ -18,6 +27,20 @@
  		private static int JungleItemCount = 0;
  		private static int[] JChestX = new int[100];
  		private static int[] JChestY = new int[100];
+@@ -1915,6 +_,13 @@
+ 		}
+ 
+ 		public static void playWorldCallBack(object threadContext) {
++#if CLIENT
++			if (Main.ActiveWorldFileData.WorldSizeName == "Extra Large" && Core64.xlWorldsDisabled) {
++				Interface.infoMessage.Show("You need to enable XL Worlds in order to play them.\nEnable them under Settings > tModLoader 64 bit Settings > Enable XL worlds", 0);
++				return;
++			}
++#endif
++			
+ 			try {
+ 				Logging.Terraria.InfoFormat("Loading World: {0}, IsCloud={1}", Main.ActiveWorldFileData.Name, Main.ActiveWorldFileData.IsCloudSave);
+ 				do_playWorldCallBack(threadContext);
 @@ -2264,7 +_,7 @@
  				Main.projectile[num6] = new Projectile();
  			}

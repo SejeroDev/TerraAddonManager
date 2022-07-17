@@ -9,8 +9,8 @@
 -      "workingDirectory": "$(tModLoaderSteamPath)"
 -    }
 +      "commandName": "Project",
-+      "workingDirectory": "D:\\SteamLibrary\\steamapps\\common\\tModLoader",
-+					 "commandLineArgs": "-console"
++      "workingDirectory": ".",
++					 "commandLineArgs": "-console; -vulkan;"
 +				}
    }
  }

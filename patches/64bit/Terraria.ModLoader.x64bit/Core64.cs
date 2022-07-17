@@ -26,15 +26,12 @@ namespace Terraria.ModLoader.x64bit
 		internal static bool vanillaMode;
 		internal static bool liteMode = false;
 
-		internal static readonly string vanillaVersion = "Terraria" + 194;
+		internal static bool xlWorldsDisabled = false;
 
 		internal static bool betaMode => false && !liteMode;
 
 		internal const int vanillaChestLimit = 1000;
 		internal static readonly int maxChest = 2000;
-
-		internal static readonly string current64BitInternalVersion = "0.11.8";
-		internal static string last64bitVersionLaunched = "";
 
 		internal static void SetupVariable() {
 			Main.chest = new Chest[maxChest];
@@ -44,6 +41,23 @@ namespace Terraria.ModLoader.x64bit
 			SaveChests_Hook += SaveChestsHook;
 		}
 
+		internal static void ToggleXLWorld() {
+#if SERVER
+			return;	
+#endif
+			
+			if (!xlWorldsDisabled) {
+				Main.tile = new Tile[8401, 2401];
+				Logging.Terraria.Info("Resized Main.tile array to 8401x2401");
+				xlWorldsDisabled = true;
+			}
+			else {
+				Main.tile = new Tile[16801, 4801];
+				Logging.Terraria.Info("Resized Main.tile array to 16801x4801");
+				xlWorldsDisabled = false;
+			}
+		}
+		
 		internal static void LoadVanillaPath() {
 
 			Main.WorldPath = Path.Combine(Main.SavePath, "Worlds");
@@ -186,7 +200,7 @@ namespace Terraria.ModLoader.x64bit
 				}
 			}
 
-			Console.Write($"Number of chest in this world {1000 + numberOfChest}");
+			Logging.Terraria.Debug($"Number of chest in this world {1000 + numberOfChest}");
 		}
 
 		private static void LoadChestHook(orig_LoadChests orig, BinaryReader reader) {

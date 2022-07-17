@@ -90,6 +90,16 @@
  		public const int maxDust = 6000;
  		public static int maxDustToDraw = 6000;
  		public const int maxCombatText = 100;
+@@ -2451,6 +_,9 @@
+ 					break;
+ 			}
+ 
++			maxScreenW = Math.Min(graphics.GraphicsDevice.Adapter.CurrentDisplayMode.Width, maxScreenW);
++			maxScreenH = Math.Min(graphics.GraphicsDevice.Adapter.CurrentDisplayMode.Height, maxScreenH);
++
+ 			try {
+ 				graphics.ApplyChanges();
+ 			}
 @@ -3161,15 +_,16 @@
  		}
  
@@ -181,12 +191,17 @@
  			base.Window.AllowUserResizing = true;
  			OpenSettings();
  			if (screenWidth > GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width)
-@@ -7304,7 +_,7 @@
+@@ -7304,7 +_,12 @@
  			engine = new AudioEngine(Main.instance.Content.RootDirectory + Path.DirectorySeparatorChar + "TerrariaMusic.xgs");
  			soundBank = new SoundBank(engine, Main.instance.Content.RootDirectory + Path.DirectorySeparatorChar + "Sound Bank.xsb");
  			engine.Update();
++			if (!File.Exists("./Content" + Path.DirectorySeparatorChar + "Wave Bank.xwb")) {
 -			waveBank = new WaveBank(engine, Main.instance.Content.RootDirectory + Path.DirectorySeparatorChar + "Wave Bank.xwb", 0, 512);
-+			waveBank = new WaveBank(engine, Main.instance.Content.RootDirectory + Path.DirectorySeparatorChar + "Wave Bank.xwb");
++				waveBank = new WaveBank(engine, Main.instance.Content.RootDirectory + Path.DirectorySeparatorChar + "Wave Bank.xwb");
++			}
++			else {
++				waveBank = new WaveBank(engine, "./Content" + Path.DirectorySeparatorChar + "Wave Bank.xwb");
++			}
  			engine.Update();
  			music = new Music[42];
  			while (!waveBank.IsPrepared) {
@@ -241,13 +256,35 @@
 -					tServer.StartInfo.FileName = "tModLoaderServer";
 -#endif
 +					if(PlatformUtilities.IsWindows)
-+						tServer.StartInfo.FileName = "tModLoader64BitServer.exe";
++						tServer.StartInfo.FileName = "tModLoader64bitServer.exe";
 +					else
-+						tServer.StartInfo.FileName = "tModLoader64BitServer";
++						tServer.StartInfo.FileName = "tModLoader64bitServer";
 +
  					tServer.StartInfo.Arguments = str;
  					if (libPath != "") {
  						ProcessStartInfo startInfo = tServer.StartInfo;
+@@ -37349,6 +_,7 @@
+ 					num4 = 37;
+ 					num5 = 8;
+ 					num5++; // Room for tModLoader settings option.
++					num5++; // Room for tModLoader 64 settings option.
+ 					array4[num5 - 1] = 8;
+ 					for (int num20 = 0; num20 < num5; num20++) {
+ 						array7[num20] = 0.75f;
+@@ -37409,6 +_,13 @@
+ 						PlaySound(SoundID.MenuOpen);
+ 						menuMode = Interface.tModLoaderSettingsID;
+ 					}
++					
++					num21++;
++					array9[num21] = "tModLoader 64 bit settings";
++					if (selectedMenu == num21) {
++						PlaySound(SoundID.MenuOpen);
++						menuMode = Interface.tModLoader64SettingsID;
++					}
+ 
+ 					num21++;
+ 					array9[num21] = Lang.menu[5].Value;
 @@ -37726,7 +_,7 @@
  					}
  
@@ -257,7 +294,7 @@
  					flag7 = true;
  					System.Drawing.Rectangle bounds = Screen.FromPoint(((Form)Control.FromHandle(instance.Window.Handle)).Location).Bounds;
  					if (bounds.Width > maxScreenW || bounds.Height > maxScreenH)
-@@ -38381,36 +_,42 @@
+@@ -38381,36 +_,48 @@
  					array4[1] = 30;
  					array4[2] = 30;
  					array4[3] = 30;
@@ -269,13 +306,19 @@
  					array9[1] = Lang.menu[92].Value;
  					array9[2] = Lang.menu[93].Value;
  					array9[3] = Lang.menu[94].Value;
-+					array9[4] = "Extra Large";
++					if (!Core64.xlWorldsDisabled) {
++						array9[4] = "Extra Large";
++						array9[5] = Lang.menu[5].Value;
++						num5 = 6;	
++					}
++					else {
 -					array9[4] = Lang.menu[5].Value;
-+					array9[5] = Lang.menu[5].Value;
++						array9[4] = Lang.menu[5].Value;
 -					num5 = 5;
-+					num5 = 6;
++						num5 = 5;
 -					if (selectedMenu == 4 || flag5) {
-+					if (this.selectedMenu == 5 || flag5) {
++					}
++						if (this.selectedMenu == 5 || flag5 || (this.selectedMenu == 4 && Core64.xlWorldsDisabled)) {
  						flag5 = false;
  						menuMode = 6;
 -						PlaySound(11);
@@ -298,7 +341,7 @@
  							maxTilesX = 8400;
  							maxTilesY = 2400;
  						}
-+						else {
++						else if (this.selectedMenu == 4 && !Core64.xlWorldsDisabled) {
 +							maxTilesX = 16800;
 +							maxTilesY = 3600;
 +						}
@@ -310,6 +353,31 @@
  						WorldGen.setWorldSize();
  					}
  				}
+@@ -39146,9 +_,9 @@
+ 				Vector2 origin2 = fontMouseText.MeasureString(text5);
+ 				origin2.X *= 0.5f;
+ 				origin2.Y *= 0.5f;
+-				if (menuMode == 0 && !ModCompile.DeveloperMode) {
++				if (menuMode == 0) {
+ 					origin2.Y *= 2;
+-					var text = "Enable Developer Mode";
++					var text = "Show your support for tModLoader 64 bit";
+ 					// measure and draw text from bottom right
+ 					var textSize = fontMouseText.MeasureString(text);
+ 					var pos = new Vector2(screenWidth - 10f + num106, screenHeight - 2f + num107);
+@@ -39157,10 +_,10 @@
+ 					{
+ 						var rect = new Microsoft.Xna.Framework.Rectangle((int)(pos.X - textSize.X), (int)(pos.Y - textSize.Y), (int)textSize.X, (int)textSize.Y);
+ 						bool mouseover = rect.Contains(mouseX, mouseY);
+-						d_color = mouseover ? highVersionColor : new Microsoft.Xna.Framework.Color(120, 120, 120, 76);
++						d_color = mouseover ? highVersionColor : new Microsoft.Xna.Framework.Color(40, 180, 20, 200);
+ 						if (mouseover && mouseLeftRelease && mouseLeft) {
+ 							PlaySound(SoundID.MenuOpen);
+-							menuMode = Interface.developerModeHelpID;
++							menuMode = Interface.tModLoader64supportLinksId;
+ 						}
+ 					}
+ 
 @@ -39194,26 +_,11 @@
  				if (num108 == 3)
  					num110 = 2;
@@ -350,6 +418,16 @@
  			tileBatch.Begin();
  #else
  			tileBatch.Begin(SpriteSortMode.Texture, BlendState.AlphaBlend);
+@@ -41375,8 +_,8 @@
+ 			}
+ 
+ 			TimeLogger.DetailedDrawReset();
+-			spriteBatch.End();
+ 			tileBatch.End();
++			spriteBatch.End();
+ 			TimeLogger.DetailedDrawTime(33);
+ 			base.GraphicsDevice.SetRenderTarget(null);
+ 		}
 @@ -50885,8 +_,9 @@
  				graphics.ToggleFullScreen();
  

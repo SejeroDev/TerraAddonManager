@@ -19,3 +19,12 @@
  			tML.InfoFormat("Executable: {0}", Assembly.GetEntryAssembly().Location);
  			tML.InfoFormat("Working Directory: {0}", Path.GetFullPath(Directory.GetCurrentDirectory()));
  			tML.InfoFormat("Launch Parameters: {0}", string.Join(" ", Program.LaunchParameters.Select(p => (p.Key + " " + p.Value).Trim())));
+@@ -57,7 +_,7 @@
+ 			foreach (var line in initWarnings)
+ 				tML.Warn(line);
+ 
+-				AppDomain.CurrentDomain.UnhandledException += (s, args) => tML.Error("Unhandled Exception", args.ExceptionObject as Exception);
++			AppDomain.CurrentDomain.UnhandledException += (s, args) => tML.Error("Unhandled Exception", args.ExceptionObject as Exception);
+ 			LogFirstChanceExceptions();
+ 			EnablePortablePDBTraces();
+ 			AssemblyResolving.Init();

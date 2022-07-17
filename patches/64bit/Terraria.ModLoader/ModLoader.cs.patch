@@ -18,14 +18,29 @@
  
  		[Obsolete("Use CompressedPlatformRepresentation instead")]
  		public static readonly string compressedPlatformRepresentation = Platform.IsWindows ? "w" : (Platform.IsLinux ? "l" : "m");
-@@ -376,7 +_,10 @@
- 			Main.Configuration.Get("AvoidGithub", ref UI.ModBrowser.UIModBrowser.AvoidGithub);
+@@ -360,6 +_,9 @@
+ 			Main.Configuration.Put("AvoidImgur", UI.ModBrowser.UIModBrowser.AvoidImgur);
+ 			Main.Configuration.Put(nameof(UI.ModBrowser.UIModBrowser.EarlyAutoUpdate), UI.ModBrowser.UIModBrowser.EarlyAutoUpdate);
+ 			Main.Configuration.Put("LastLaunchedTModLoaderVersion", version.ToString());
++			
++			// tModLoader 64 bit specific Configs
++			Main.Configuration.Put("tMod64_XlWorldsDisabled", Core64.xlWorldsDisabled);
+ 		}
+ 
+ 		internal static void LoadConfiguration()
+@@ -377,6 +_,15 @@
  			Main.Configuration.Get("AvoidImgur", ref UI.ModBrowser.UIModBrowser.AvoidImgur);
  			Main.Configuration.Get(nameof(UI.ModBrowser.UIModBrowser.EarlyAutoUpdate), ref UI.ModBrowser.UIModBrowser.EarlyAutoUpdate);
  			LastLaunchedTModLoaderVersion = new Version(Main.Configuration.Get("LastLaunchedTModLoaderVersion", "0.0"));
-+			Main.Configuration.Get("VanillaMode", ref Core64.vanillaMode);
-+			Main.Configuration.Get("LiteMode", ref Core64.liteMode);
-+			Main.Configuration.Get("Last64BitLaunched", ref Core64.last64bitVersionLaunched);
++			
++			// tModLoader 64 bit specific Configs
++			Main.Configuration.Get("tMod64_XlWorldsDisabled", ref Core64.xlWorldsDisabled);
++#if CLIENT
++			if (Core64.xlWorldsDisabled) {
++				Main.tile = new Tile[8401, 2401];
++				Logging.Terraria.Info("Resized Main.tile array to 8401x2401");
++			}
++#endif
  		}
  
  		internal static void MigrateSettings()
