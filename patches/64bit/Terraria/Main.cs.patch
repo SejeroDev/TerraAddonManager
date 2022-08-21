@@ -183,6 +183,15 @@
  			string vanillaContentFolder = "../Terraria/Content"; // Side-by-Side Manual Install
  			if (!Directory.Exists(vanillaContentFolder)) {
  				vanillaContentFolder = "../Content"; // Nested Manual Install
+@@ -4217,7 +_,7 @@
+ 				Logging.tML.Info($"Mac Terraria content folder location not found.");
+ 			}
+ #endif
+-			if (SocialAPI.Mode == SocialMode.Steam && Steamworks.SteamAPI.Init()) {
++			if (InstallVerifier.IsSteam && Steamworks.SteamAPI.Init()) {
+ 				var appID = ModLoader.Engine.Steam.TerrariaAppId_t;
+ 				bool appInstalled = Steamworks.SteamApps.BIsAppInstalled(appID);
+ 				if (appInstalled) { 
 @@ -6765,6 +_,7 @@
  			});
  
