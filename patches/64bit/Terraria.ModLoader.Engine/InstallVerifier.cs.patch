@@ -8,6 +8,15 @@
  
  namespace Terraria.ModLoader.Engine
  {
+@@ -15,7 +_,7 @@
+ 	{
+ 		const string ContentDirectory = "Content";
+ 
+-		private static bool? isValid;
++		private static bool? isValid = null;
+ 		public static bool IsValid => isValid ?? (isValid = InstallCheck()).Value;
+ 		public static bool IsGoG = false;
+ 		public static bool IsSteam = false;
 @@ -27,19 +_,19 @@
  
  		static InstallVerifier()

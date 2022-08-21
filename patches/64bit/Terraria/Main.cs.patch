@@ -183,15 +183,16 @@
  			string vanillaContentFolder = "../Terraria/Content"; // Side-by-Side Manual Install
  			if (!Directory.Exists(vanillaContentFolder)) {
  				vanillaContentFolder = "../Content"; // Nested Manual Install
-@@ -4217,7 +_,7 @@
+@@ -4217,6 +_,9 @@
  				Logging.tML.Info($"Mac Terraria content folder location not found.");
  			}
  #endif
--			if (SocialAPI.Mode == SocialMode.Steam && Steamworks.SteamAPI.Init()) {
-+			if (InstallVerifier.IsSteam && Steamworks.SteamAPI.Init()) {
++			// For some reason which is out of my understaind the SocialAPI sometimes isn't initialized in the LaunchGame method.
++			// This might have bad effects, but oh well.
++			SocialAPI.Initialize();
+ 			if (SocialAPI.Mode == SocialMode.Steam && Steamworks.SteamAPI.Init()) {
  				var appID = ModLoader.Engine.Steam.TerrariaAppId_t;
  				bool appInstalled = Steamworks.SteamApps.BIsAppInstalled(appID);
- 				if (appInstalled) { 
 @@ -6765,6 +_,7 @@
  			});
  
