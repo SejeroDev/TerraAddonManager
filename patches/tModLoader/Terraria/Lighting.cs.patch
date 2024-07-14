@@ -1,133 +1,116 @@
---- src/Terraria/Terraria/Lighting.cs
+--- src/TerrariaNetCore/Terraria/Lighting.cs
 +++ src/tModLoader/Terraria/Lighting.cs
-@@ -8,6 +_,7 @@
- using Terraria.Graphics;
- using Terraria.ID;
- using Terraria.Utilities;
-+using Terraria.ModLoader;
+@@ -7,6 +_,9 @@
  
- namespace Terraria
+ namespace Terraria;
+ 
++/// <summary>
++/// This class manages lighting in the game world. Lighting is calculated and tracked at tile coordinates within the users game view. The most common use of this class is to use GetColor methods to retrieve the light values at a location for drawing a specific entity. Another common usage is adding light to the game world using the AddLight methods.
++/// </summary>
+ public class Lighting
  {
-@@ -112,7 +_,7 @@
- 		private static int firstToLightY;
- 		private static int lastToLightX;
- 		private static int lastToLightY;
--		private static float negLight = 0.04f;
-+		internal static float negLight = 0.04f;
- 		private static float negLight2 = 0.16f;
- 		private static float wetLightR = 0.16f;
- 		private static float wetLightG = 0.16f;
-@@ -120,7 +_,7 @@
- 		private static float honeyLightR = 0.16f;
- 		private static float honeyLightG = 0.16f;
- 		private static float honeyLightB = 0.16f;
--		private static float blueWave = 1f;
-+		internal static float blueWave = 1f;
- 		private static int blueDir = 1;
- 		private static int minX7;
- 		private static int maxX7;
-@@ -513,6 +_,7 @@
- 			}
+ 	private const float DEFAULT_GLOBAL_BRIGHTNESS = 1.2f;
+@@ -14,8 +_,8 @@
+ 	[Old]
+ 	public static int OffScreenTiles = 45;
+ 	private static LightMode _mode = LightMode.Color;
+-	private static readonly LightingEngine NewEngine = new LightingEngine();
++	internal static readonly LightingEngine NewEngine = new LightingEngine();
+-	private static readonly LegacyLighting LegacyEngine = new LegacyLighting(Main.Camera);
++	public static readonly LegacyLighting LegacyEngine = new LegacyLighting(Main.Camera);
+ 	private static ILightingEngine _activeEngine;
  
- 			Main.player[Main.myPlayer].hasBanner = false;
-+			WorldHooks.ResetNearbyTileEffects();
- 			int[] screenTileCounts = Main.screenTileCounts;
- 			Array.Clear(screenTileCounts, 0, screenTileCounts.Length);
- 			num4 = Utils.Clamp(firstToLightX, 5, Main.maxTilesX - 1);
-@@ -525,6 +_,7 @@
- 			Main.monolithType = -1;
- 			for (int n = num4; n < num5; n++) {
- 				LightingState[] array3 = states[n - firstToLightX];
-+				//patch file: n, num17
- 				for (int num17 = num6; num17 < num7; num17++) {
- 					LightingState lightingState2 = array3[num17 - firstToLightY];
- 					Tile tile = Main.tile[n, num17];
-@@ -737,7 +_,9 @@
- 							break;
- 					}
+ 	public static float GlobalBrightness { get; set; }
+@@ -100,6 +_,10 @@
+ 		return GlobalBrightness * (color.X + color.Y + color.Z) / 3f;
+ 	}
  
-+					WallLoader.ModifyLight(n, num17, tile.wall, ref num18, ref num19, ref num20);
- 					if (tile.active()) {
-+						bool closer = false;
- 						if (n > num4 + num15 && n < num5 - num15 && num17 > num6 + num16 && num17 < num7 - num16) {
- 							screenTileCounts[tile.type]++;
- 							if (tile.type == 215 && tile.frameY < 36)
-@@ -765,6 +_,8 @@
- 									Main.player[Main.myPlayer].hasBanner = true;
- 								}
- 							}
-+
-+							closer = true;
- 						}
++	/// <summary>
++	/// Gets the lighting color at the specified World coordinate location. The value is calculated through bilinear interpolation of the nearby tile coordinates.
++	/// <include file = 'CommonDocs.xml' path='Common/LightingGetColor' />
++	/// </summary>
+ 	public static Vector3 GetSubLight(Vector2 position)
+ 	{
+ 		Vector2 vector = position / 16f - new Vector2(0.5f, 0.5f);
+@@ -115,11 +_,27 @@
+ 		return Vector3.Lerp(value, value2, vector2.Y);
+ 	}
  
- 						switch (tile.type) {
-@@ -811,6 +_,10 @@
- 								break;
- 						}
++	/// <summary>
++	/// Adds light to the world at the specified coordinates.<para/>
++	/// This overload takes in world coordinates and a Vector3 containing float values typically ranging from 0 to 1. Values greater than 1 will cause the light to propagate farther. A <see cref="Vector3"/> is used for this method instead of <see cref="Color"/> to allow these overflow values.
++	/// </summary>
++	/// <param name="position"></param>
++	/// <param name="rgb"></param>
+ 	public static void AddLight(Vector2 position, Vector3 rgb)
+ 	{
+ 		AddLight((int)(position.X / 16f), (int)(position.Y / 16f), rgb.X, rgb.Y, rgb.Z);
+ 	}
  
-+						if (TileLoader.IsModMusicBox(tile) && tile.frameX >= 36)
-+							Main.musicBox = SoundLoader.tileToMusic[tile.type][tile.frameY / 36 * 36];
-+
-+						TileLoader.NearbyEffects(n, num17, tile.type, closer);
- 						if (Main.tileBlockLight[tile.type] && (lightMode >= 2 || (tile.type != 131 && !tile.inActive() && tile.slope() == 0)))
- 							lightingState2.stopLight = true;
++	/// <summary>
++	/// <summary>
++	/// Adds light to the world at the specified coordinates.<para/>
++	/// This overload takes in world coordinates and float values typically ranging from 0 to 1. Values greater than 1 will cause the light to propagate farther.
++	/// </summary>
++	/// </summary>
++	/// <param name="position"></param>
++	/// <param name="r"></param>
++	/// <param name="g"></param>
++	/// <param name="b"></param>
+ 	public static void AddLight(Vector2 position, float r, float g, float b)
+ 	{
+ 		AddLight((int)(position.X / 16f), (int)(position.Y / 16f), r, g, b);
+@@ -137,6 +_,15 @@
+ 		AddLight((int)position.X / 16, (int)position.Y / 16, R, G, B);
+ 	}
  
-@@ -1967,13 +_,17 @@
- 						}
- 					}
++	/// <summary>
++	/// Adds light to the world at the specified coordinates.<para/>
++	/// This overload takes in tile coordinates and float values typically ranging from 0 to 1. Values greater than 1 will cause the light to propagate farther.
++	/// </summary>
++	/// <param name="i"></param>
++	/// <param name="j"></param>
++	/// <param name="r"></param>
++	/// <param name="g"></param>
++	/// <param name="b"></param>
+ 	public static void AddLight(int i, int j, float r, float g, float b)
+ 	{
+ 		if (!Main.gamePaused && Main.netMode != 2)
+@@ -157,6 +_,7 @@
+ 		_activeEngine.Clear();
+ 	}
  
-+					TileLoader.ModifyLight(n, num17, tile.type, ref num18, ref num19, ref num20);
-+
- 					if (RGB) {
- 						if (lightingState2.r2 < num18)
- 							lightingState2.r2 = num18;
++	/// <summary> <inheritdoc cref="GetColor(int, int)"/> </summary>
+ 	public static Color GetColor(Point tileCoords)
+ 	{
+ 		if (Main.gameMenu)
+@@ -165,6 +_,10 @@
+ 		return new Color(_activeEngine.GetColor(tileCoords.X, tileCoords.Y) * GlobalBrightness);
+ 	}
  
-+						//patch file: num18, num19
- 						if (lightingState2.g2 < num19)
- 							lightingState2.g2 = num19;
++	/// <summary>
++	/// Gets the lighting color at the specified Tile coordinate location, then multiplies it by the provided Color.
++	/// <include file = 'CommonDocs.xml' path='Common/LightingGetColor' />
++	/// </summary>
+ 	public static Color GetColor(Point tileCoords, Color originalColor)
+ 	{
+ 		if (Main.gameMenu)
+@@ -173,6 +_,7 @@
+ 		return new Color(_activeEngine.GetColor(tileCoords.X, tileCoords.Y) * originalColor.ToVector3());
+ 	}
  
-+						//patch file: num19, num20
- 						if (lightingState2.b2 < num20)
- 							lightingState2.b2 = num20;
- 					}
-@@ -2076,12 +_,13 @@
- 			Main.partyMonoliths = screenTileCounts[455];
- 			if (Main.player[Main.myPlayer].accOreFinder) {
- 				Main.player[Main.myPlayer].bestOre = -1;
--				for (int num58 = 0; num58 < 470; num58++) {
-+				for (int num58 = 0; num58 < Main.tileValue.Length; num58++) {
- 					if (screenTileCounts[num58] > 0 && Main.tileValue[num58] > 0 && (Main.player[Main.myPlayer].bestOre < 0 || Main.tileValue[num58] > Main.tileValue[Main.player[Main.myPlayer].bestOre]))
- 						Main.player[Main.myPlayer].bestOre = num58;
- 				}
- 			}
++	/// <summary> <inheritdoc cref="GetColor(Point, Color)"/> </summary>
+ 	public static Color GetColor(int x, int y, Color oldColor)
+ 	{
+ 		if (Main.gameMenu)
+@@ -191,6 +_,10 @@
+ 		return new Color(color * oldColor.ToVector3());
+ 	}
  
-+			WorldHooks.TileCountsAvailable(screenTileCounts);
- 			if (Main.holyTiles < 0)
- 				Main.holyTiles = 0;
- 
-@@ -2200,6 +_,8 @@
- 							wetLightB = 0f;
- 							break;
- 					}
-+
-+					WaterStyleLoader.LightColorMultiplier(Main.waterStyle, ref wetLightR, ref wetLightG, ref wetLightB);
- 				}
- 				else {
- 					negLight = 0.9f;
-@@ -2226,6 +_,8 @@
- 					negLight *= 0.85f;
- 					negLight2 *= 0.85f;
- 				}
-+
-+				ModHooks.ModifyLightingBrightness(ref negLight, ref negLight2);
- 			}
- 			else {
- 				negLight = 0.04f;
-@@ -2250,6 +_,7 @@
- 					negLight2 += 0.18f;
- 				}
- 
-+				ModHooks.ModifyLightingBrightness(ref negLight, ref negLight2);
- 				wetLightR = negLight * 1.2f;
- 				wetLightG = negLight * 1.1f;
- 			}
++	/// <summary>
++	/// Gets the lighting color at the specified Tile coordinate location.
++	/// <include file = 'CommonDocs.xml' path='Common/LightingGetColor' />
++	/// </summary>
+ 	public static Color GetColor(int x, int y)
+ 	{
+ 		if (Main.gameMenu)
