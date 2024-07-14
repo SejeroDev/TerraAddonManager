@@ -29,4 +29,4 @@ if NOT ["%errorlevel%"]==["0"] (
     exit /b %errorlevel%
 )
 
-start "" "setup\bin\Debug\netcoreapp3.1\setup.exe"
+start "" "setup/bin/Debug/net6.0-windows/setup.exe"
