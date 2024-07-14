@@ -20,13 +20,3 @@ if NOT ["%errorlevel%"]==["0"] (
     pause
     exit /b %errorlevel%
 )
-
-echo building setup.csproj
-dotnet build setup/setup.csproj
-
-if NOT ["%errorlevel%"]==["0"] (
-    pause
-    exit /b %errorlevel%
-)
-
-start "" "setup/bin/Debug/net6.0-windows/setup.exe"
